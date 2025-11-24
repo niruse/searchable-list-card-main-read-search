@@ -12,6 +12,10 @@ This is a very early version, done very quick and dirty.
 
 Please add your improvement suggestions, and feel free to contribute.
 
+## ☕ Support
+
+If you found this project helpful, you can [buy me a coffee](https://coff.ee/niruse)!
+
 ### Demo
 
 | Add an item | Find an item | Check / uncheck an item |
