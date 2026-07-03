@@ -32,23 +32,24 @@ class SearchableListCardMainReadSearch extends LitElement {
             <ha-card>
                 <div id="searchContainer">
                     <div id="searchTextFieldContainer">
-                        <ha-textfield
-                            id="searchText"
-                            @input="${this._valueChanged}"
-                            @keydown=${this._addKeyPress}
-                            no-label-float type="text" autocomplete="off"
-                            icon iconTrailing
-                            label="${this.search_text}"
-                        >
-                        <ha-icon icon="mdi:magnify" id="searchIcon" slot="leadingIcon"></ha-icon>
-                        <ha-icon-button
-                            slot="trailingIcon"
-                            @click="${this._addItem}"
-                            alt="Add"
-                            title="Add"
-                        >
-                        </ha-icon-button>
-                        </ha-textfield>
+                        <div class="input-wrapper">
+                            <ha-icon icon="mdi:magnify" class="search-icon"></ha-icon>
+                            <input
+                                id="searchText"
+                                @input="${this._valueChanged}"
+                                @keydown=${this._addKeyPress}
+                                placeholder="${this.search_text}"
+                                type="text"
+                                autocomplete="off"
+                            >
+                            <ha-icon-button
+                                class="add-button"
+                                @click="${this._addItem}"
+                                title="Add"
+                            >
+                                <ha-icon icon="mdi:plus"></ha-icon>
+                            </ha-icon-button>
+                        </div>
                     </div>
                     ${(this.results?.length > 0 && this.results?.length < this.items.length) ?
                         html`<div id="count">Showing ${this.results.length - 2} of ${this.items.length} results</div>`
@@ -112,7 +113,7 @@ class SearchableListCardMainReadSearch extends LitElement {
 
     _addKeyPress(ev) {
         if (ev.key === "Enter") {
-            //this._addItem()
+            this._addItem()
         }
     }
 
@@ -124,16 +125,16 @@ class SearchableListCardMainReadSearch extends LitElement {
             item: this.searchText,
         })
     
-        var a = this.searchText  // ✅ Store search text before clearing
+        var a = this.searchText
         await this._getListItems()
-        this._keepLastSearch(a) // ✅ Restore last search correctly
-        this._clearInput()      // ✅ Clear input after restoring search
+        this._keepLastSearch(a)
+        this._clearInput()
     }
 
     async _changeItemStatus(ev) {
         this.results = []
         this.results_rows = []
-        this.update()
+        this.requestUpdate()
     
         const uid = ev.target.id
         const status = ev.currentTarget.checked ? 'completed' : 'needs_action'
@@ -169,7 +170,7 @@ class SearchableListCardMainReadSearch extends LitElement {
         if (!this.config || !this.hass || searchText === "") {
             this.results = this.items
             this._sortItems()
-            this.update()
+            this.requestUpdate()
             return
         }
     
@@ -185,7 +186,7 @@ class SearchableListCardMainReadSearch extends LitElement {
         }
 
         this._sortItems()
-        this.update()
+        this.requestUpdate()
     }
 
     _keepLastSearch(en) {
@@ -216,11 +217,33 @@ class SearchableListCardMainReadSearch extends LitElement {
             }
             #searchTextFieldContainer {
                 display: flex;
-                padding-top: 5px;
-                padding-bottom: 5px;
+                padding: 10px 0;
+            }
+            .input-wrapper {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                background-color: var(--card-background-color);
+                border: 1px solid var(--divider-color);
+                border-radius: 4px;
+                padding: 0 10px;
+                height: 48px;
             }
             #searchText {
                 flex-grow: 1;
+                border: none;
+                background: transparent;
+                color: var(--primary-text-color);
+                font-size: 16px;
+                padding: 0 10px;
+                outline: none;
+                height: 100%;
+            }
+            .search-icon {
+                color: var(--secondary-text-color);
+            }
+            .add-button {
+                color: var(--primary-color);
             }
             #count {
                 text-align: right;
@@ -268,13 +291,18 @@ class SearchableListCardMainReadSearch extends LitElement {
 }
 
 // ✅ Define the custom element with the new name
-customElements.define("searchable-list-card-main-read-search", SearchableListCardMainReadSearch)
+if (!customElements.get("searchable-list-card-main-read-search")) {
+    customElements.define("searchable-list-card-main-read-search", SearchableListCardMainReadSearch)
+}
+if (!customElements.get("searchable-list-card-main_read")) {
+    customElements.define("searchable-list-card-main_read", class extends SearchableListCardMainReadSearch {})
+}
 
 // ✅ Push updated card metadata to Home Assistant
 window.customCards = window.customCards || []
 window.customCards.push({
-    type: "searchable-list-card-main-read-search",
-    name: "Searchable List Card Main Read Search",
+    type: "searchable-list-card-main_read",
+    name: "Searchable List Card (Main Read)",
     preview: true,
     description: "A list card with search capabilities and persistent search functionality",
 })
